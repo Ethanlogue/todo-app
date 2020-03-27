@@ -1,18 +1,48 @@
-import React from 'react';
-import { StyleSheet, Text, View, StatusBar, TextInput, Dimensions, Platform } from 'react-native';
-
-const {height, width} = Dimensions.get("window");
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
+import Header  from './components/header'
+import TodoItem from './components/todoItem';
+import AddTodo from './components/addTodo';
 
 export default function App() {
-  return (
+  const [todos, setTodos] = useState([
+    { text : 'buy coffee', key: '1'},
+    { text : 'create an app', key: '2'},
+    { text : 'checking abstract', key: '3'},  
+  ]);
+
+  const pressHandler = (key) => {
+    setTodos((prevTodos) => {
+      return prevTodos.filter(todo => todo.key != key);
+    });
+  }
+
+  const submitHandler = (text) => {
+    setTodos((prevTodos) => {
+      return [
+        {text: text, key: Math.random().toString()},
+        ...prevTodos
+      ]
+    });
+  }
+
+  return(
     <View style={styles.container}>
-      <StatusBar barStyle="light-content"/>
-      <Text style={styles.title}>Ethans's To Do APP</Text>
-      <View style={styles.card}>
-        <TextInput style={styles.input} placeholder={"New To Do"}/>
+      <Header />
+      <View style={styles.content}>
+        <AddTodo submitHandler={submitHandler} />
+        <View style={styles.list}>
+          <FlatList 
+            data={todos}
+            renderItem={({ item }) => (
+              <TodoItem item={item} pressHandler={pressHandler} />
+            )}  
+          />
+        </View>
       </View>
     </View>
-  );
+  )
+
 }
 
 const styles = StyleSheet.create({
@@ -21,33 +51,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F23657',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 30,
-    color: "white",
-    marginTop: 70,
-    fontWeight: "400",
-    marginBottom: 30
+  content: {
+    padding: 40,
   },
-  card: {
-    backgroundColor:"white",
-    flex: 1,
-    width: width -50,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor:"rgb(50,50,50)",
-        shadowOpacity: 0.5,
-        shadowRadius: 5,
-        shadowOffset:{
-          height: -1,
-          width: 0
-        }
-      },
-      android: {
-        elevation: 3
-      }
-
-    })
-  }
+  list: {
+    marginTop: 20,
+  },
 });
